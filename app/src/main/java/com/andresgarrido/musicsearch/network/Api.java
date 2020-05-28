@@ -10,7 +10,7 @@ public interface Api {
 
 	@GET("search")
 	Call<SongResponse> search(@Query("term") String term, @Query("mediaType") String mediaType,
-							  @Query("limit") int limit);
+							  @Query("limit") int limit, @Query("offset") int offset);
 	@GET("lookup")
-	Call<SongResponse> getAlbumSongs(@Query("id") String albumId, @Query("entity") String entity);
+	Call<SongResponse> getAlbumSongs(@Query("id") long albumId, @Query("entity") String entity);
 }
