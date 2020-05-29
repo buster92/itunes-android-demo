@@ -61,7 +61,7 @@ public class MediaPlayerSingleton {
 	}
 
 
-	public void playUrl(PlayerListener listener, String url) {
+	public synchronized void playUrl(PlayerListener listener, String url) {
 		stop();
 		this.listener = listener;
 		try {
@@ -77,14 +77,16 @@ public class MediaPlayerSingleton {
 		return isPlaying;
 	}
 
-	public void stop() {
+	public synchronized void stop() {
+		if (thread != null)
+			thread.interrupt();
 		if (mediaPlayer != null) {
 			mediaPlayer.setLooping(false);
 			mediaPlayer.stop();
 			mediaPlayer.reset();
-			if (listener != null)
-				listener.onProgressChanged(0);
 		}
+		if (listener != null)
+			listener.onProgressChanged(0);
 		isPlaying = false;
 	}
 
