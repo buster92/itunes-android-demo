@@ -10,17 +10,8 @@
 		android:id="@+id/search_edit_text"
 		android:layout_width="0dp"
 		android:layout_height="50dp"
-		app:layout_constraintEnd_toStartOf="@+id/search_button"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toTopOf="parent" />
-
-	<androidx.appcompat.widget.AppCompatImageButton
-		android:id="@+id/search_button"
-		android:layout_width="wrap_content"
-		android:layout_height="50dp"
-		android:src="@drawable/ic_search_black_24dp"
-		android:adjustViewBounds="true"
 		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent" />
 
 	<androidx.recyclerview.widget.RecyclerView
@@ -33,4 +24,16 @@
 		app:layout_constraintTop_toBottomOf="@+id/search_edit_text">
 	</androidx.recyclerview.widget.RecyclerView>
 
+	<TextView
+		android:id="@+id/no_data_tv"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="@string/no_songs_found"
+		android:textSize="28sp"
+		android:textStyle="italic"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
+		android:visibility="gone"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

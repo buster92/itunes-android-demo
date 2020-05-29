@@ -114,6 +114,11 @@ public class MainActivity extends AppCompatActivity {
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onSearchTermResult(SearchTermResponseOk event) {
+		if (event.result.size() == 0) {
+			binding.noDataTv.setVisibility(View.VISIBLE);
+			return;
+		}
+		binding.noDataTv.setVisibility(View.GONE);
 		adapter.addItems(event.result);
 	}
 }
