@@ -1,3 +1,7 @@
 <resources>
 	<string name="app_name">MusicSearch</string>
+
+	<string name="album_name">Album: %s</string>
+	<string name="artist_name">Artist: %s</string>
+	<string name="genre_name">Genre: %s</string>
 </resources>
