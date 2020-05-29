@@ -1,21 +1,20 @@
 package com.andresgarrido.musicsearch;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.andresgarrido.musicsearch.adapter.SongPlayerRecyclerAdapter;
 import com.andresgarrido.musicsearch.databinding.ActivityAlbumDetailsBinding;
-import com.andresgarrido.musicsearch.databinding.ActivityMainBinding;
 import com.andresgarrido.musicsearch.databinding.ContentAlbumDetailsBinding;
+import com.andresgarrido.musicsearch.databinding.ItemSongPlayerBinding;
 import com.andresgarrido.musicsearch.event.FinishedLoadingSong;
+import com.andresgarrido.musicsearch.event.GetAlbumSongsError;
 import com.andresgarrido.musicsearch.event.GetAlbumSongsOk;
-import com.andresgarrido.musicsearch.event.SearchTermResponseOk;
 import com.andresgarrido.musicsearch.event.StartedLoadingSong;
+import com.andresgarrido.musicsearch.model.SongResponse;
 import com.andresgarrido.musicsearch.network.ApiHelper;
 import com.andresgarrido.musicsearch.util.MediaPlayerSingleton;
 import com.bumptech.glide.Glide;
@@ -32,7 +31,6 @@ public class AlbumDetailsActivity extends AppCompatActivity {
 	ContentAlbumDetailsBinding detailsBinding;
 
 	private long collectionId;
-	private SongPlayerRecyclerAdapter adapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -52,15 +50,15 @@ public class AlbumDetailsActivity extends AppCompatActivity {
 		else {
 			throw new IllegalStateException("Must provide EXTRA_ID extra");
 		}
-
-		ApiHelper.getAlbumSongs(collectionId);
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
 		EventBus.getDefault().register(this);
-		binding.albumDetailsProgressBar.setVisibility(View.GONE);
+
+		binding.albumDetailsProgressBar.setVisibility(View.VISIBLE);
+		ApiHelper.getAlbumSongs(collectionId);
 	}
 
 	@Override
@@ -70,20 +68,54 @@ public class AlbumDetailsActivity extends AppCompatActivity {
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onSearchTermResult(GetAlbumSongsOk event) {
+	public void onGetAlbumOk(GetAlbumSongsOk event) {
+		binding.albumDetailsProgressBar.setVisibility(View.GONE);
 		if (event.result.size() == 0) {
 			Toast.makeText(this, R.string.error_album_details_no_songs, Toast.LENGTH_LONG).show();
 		}
 		else {
-			binding.toolbarLayout.setTitle(event.result.get(0).albumName);
+			binding.toolbarLayout.setTitle(event.result.get(0).bandName.concat(" - ").concat(event.result.get(0).albumName));
 			Glide.with(this).load(event.result.get(0).artworkUrl100).into(binding.albumBackgroundIv);
 
-			adapter = new SongPlayerRecyclerAdapter(this, event.result);
-			detailsBinding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
-			detailsBinding.recyclerView.setAdapter(adapter);
+			for (SongResponse song : event.result) {
+				if (TextUtils.isEmpty(song.trackName) || TextUtils.isEmpty(song.previewUrl))
+					continue;
+				ItemSongPlayerBinding itemBinding = ItemSongPlayerBinding.inflate(getLayoutInflater());
+
+				itemBinding.playIconIv.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+
+						if (itemBinding.playIconIv.getDrawable().getConstantState() == getResources().getDrawable( R.drawable.ic_stop_black_24dp).getConstantState()) {
+							MediaPlayerSingleton.getInstance().stop();
+						}
+						else {
+							MediaPlayerSingleton.getInstance().playUrl(new MediaPlayerSingleton.PlayerListener() {
+								@Override
+								public void onProgressChanged(int progress) {
+									itemBinding.progressBar.setProgress(progress);
+									if (progress == 100 || progress == 0) {
+										itemBinding.playIconIv.setImageResource(R.drawable.ic_play_arrow_black_24dp);
+									} else {
+										itemBinding.playIconIv.setImageResource(R.drawable.ic_stop_black_24dp);
+									}
+								}
+							}, song.previewUrl);
+						}
+					}
+				});
+				itemBinding.titleTv.setText(song.trackName);
+				detailsBinding.songsContainerLl.addView(itemBinding.getRoot());
+			}
 		}
 	}
 
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onGetAlbumError(GetAlbumSongsError event) {
+		binding.albumDetailsProgressBar.setVisibility(View.GONE);
+		Toast.makeText(this, R.string.error_connectivity, Toast.LENGTH_LONG).show();
+		finish();
+	}
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onStartLoadingSong(StartedLoadingSong event) {
 		binding.albumDetailsProgressBar.setVisibility(View.VISIBLE);

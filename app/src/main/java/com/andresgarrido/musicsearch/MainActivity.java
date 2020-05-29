@@ -2,17 +2,17 @@ package com.andresgarrido.musicsearch;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.view.TextureView;
 import android.view.View;
+import android.widget.Toast;
 
 import com.andresgarrido.musicsearch.adapter.SongRecyclerAdapter;
 import com.andresgarrido.musicsearch.databinding.ActivityMainBinding;
+import com.andresgarrido.musicsearch.event.SearchTermResponseError;
 import com.andresgarrido.musicsearch.event.SearchTermResponseOk;
 import com.andresgarrido.musicsearch.network.ApiHelper;
 import com.andresgarrido.musicsearch.util.EndlessRecyclerOnScrollListener;
@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
 			public void onLoadMore(int currentPage) {
 				final String term = getSearchTerm();
 				if (currentPage > 0 && !TextUtils.isEmpty(term)) {
+					binding.progressBar.setVisibility(View.VISIBLE);
 					ApiHelper.search(term, adapter.getItemCount());
 				}
 			}
@@ -109,11 +110,13 @@ public class MainActivity extends AppCompatActivity {
 
 		if (TextUtils.isEmpty(term)) return;
 
+		binding.progressBar.setVisibility(View.VISIBLE);
 		ApiHelper.search(term, 0);
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onSearchTermResult(SearchTermResponseOk event) {
+		binding.progressBar.setVisibility(View.GONE);
 		if (event.result.size() == 0) {
 			binding.noDataTv.setVisibility(View.VISIBLE);
 			return;
@@ -121,4 +124,11 @@ public class MainActivity extends AppCompatActivity {
 		binding.noDataTv.setVisibility(View.GONE);
 		adapter.addItems(event.result);
 	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onSearchTermError(SearchTermResponseError event) {
+		binding.progressBar.setVisibility(View.GONE);
+		Toast.makeText(this, R.string.error_connectivity, Toast.LENGTH_LONG).show();
+	}
+
 }
