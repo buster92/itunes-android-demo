@@ -3,6 +3,7 @@ package com.andresgarrido.musicsearch.model;
 import com.google.gson.annotations.SerializedName;
 
 public class SongResponse {
+	public long trackId;
 
 	public String artworkUrl100;
 
@@ -21,4 +22,6 @@ public class SongResponse {
 
 	@SerializedName("primaryGenreName")
 	public String genre;
+
+	public String previewUrl;
 }

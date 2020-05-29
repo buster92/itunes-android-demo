@@ -22,13 +22,12 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 public class MainActivity extends AppCompatActivity {
-	ActivityMainBinding binding;
+	private ActivityMainBinding binding;
 
 	private Thread waitThreadAmount;
 	private long lastRequestTimeSearch = 0;
 	private final long UPDATE_AMOUNT_DEBOUNCE_TIME = 1000;
-
-	SongRecyclerAdapter adapter;
+	private SongRecyclerAdapter adapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +57,8 @@ public class MainActivity extends AppCompatActivity {
 
 			}
 			@Override public void afterTextChanged(Editable editable) {
-				trySearch(); }
+				trySearch();
+			}
 		});
 	}
 
@@ -75,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	private void trySearch() {
+		adapter.clearItems();
 		lastRequestTimeSearch = System.currentTimeMillis();
 		if (waitThreadAmount == null || !waitThreadAmount.isAlive()) {
 			waitThreadAmount = new Thread(() -> {

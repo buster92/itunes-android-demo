@@ -4,12 +4,15 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.andresgarrido.musicsearch.AlbumDetailsActivity;
 import com.andresgarrido.musicsearch.R;
 import com.andresgarrido.musicsearch.databinding.ItemSearchResultBinding;
 import com.andresgarrido.musicsearch.model.SongResponse;
@@ -27,6 +30,11 @@ public class SongRecyclerAdapter extends RecyclerView.Adapter<SongRecyclerAdapte
 		this.items = new ArrayList<>();
 	}
 
+	public void clearItems() {
+		items = new ArrayList<>();
+		notifyDataSetChanged();
+	}
+
 	public void addItems(List<SongResponse> newItems) {
 		final int size = items.size();
 		items.addAll(newItems);
@@ -36,7 +44,18 @@ public class SongRecyclerAdapter extends RecyclerView.Adapter<SongRecyclerAdapte
 	@Override
 	public SongHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 		ItemSearchResultBinding itemBinding = ItemSearchResultBinding .inflate(LayoutInflater.from(parent.getContext()), parent, false);
-		return new SongHolder(itemBinding);
+		SongHolder holder = new SongHolder(itemBinding);
+		itemBinding.getRoot().setOnClickListener(v -> {
+			int position =  holder.getAdapterPosition();
+			if (position < 0)
+				return;
+			long collectionId = items.get(position).albumId;
+
+			Intent intent = new Intent(context, AlbumDetailsActivity.class);
+			intent.putExtra(AlbumDetailsActivity.EXTRA_ID, collectionId);
+			context.startActivity(intent);
+		});
+		return holder;
 	}
 
 	@Override
