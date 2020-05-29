@@ -46,7 +46,7 @@
 				android:layout_height="?attr/actionBarSize"
 				app:layout_collapseMode="pin"
 				app:popupTheme="@style/AppTheme.PopupOverlay"
-				app:title="Title"/>
+				app:title="Album Title"/>
 
 
 			<ProgressBar

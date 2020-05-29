@@ -5,8 +5,11 @@
 	<string name="artist_name">Artist: %s</string>
 	<string name="genre_name">Genre: %s</string>
 
+	<string name="error_connectivity">An error occurred, check your internet connection</string>
 	<string name="error_album_details_no_songs">Error, no songs found for this album</string>
 	<string name="error_searching">An error occurred while searching songs</string>
 
 	<string name="no_songs_found">No Songs Found</string>
+
+	<string name="placeholder_search">Search a song</string>
 </resources>
